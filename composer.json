@@ -1,0 +1,21 @@
+{
+    "name": "nielstholenaar/openprovider-client",
+    "description": "Openprovider API client",
+    "authors": [
+        {
+            "name": "Niels Tholenaar",
+            "email": "info@123quality.nl"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "kevindierkx/elicit": "~0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nielstholenaar\\OpenproviderClient\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
