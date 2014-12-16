@@ -3,33 +3,16 @@
 use Kevindierkx\Elicit\Query\Grammars\Grammar;
 use Kevindierkx\Elicit\Query\Builder;
 
+use DOMDocument;
+use SimpleXMLElement;
+use DomElement;
+
 class OpenproviderGrammar extends Grammar {
 
 	/**
 	 * @var array
 	 */
 	protected $credentials = array();
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function compileRequest(Builder $query)
-	{
-		// @todo small hack for items who did not have any wheres
-		// if ( is_null($query->wheres) ) {
-		// 	$query->wheres = [];
-		// 	array_push($query->wheres, [$query->from['path']]);
-		// }
-
-		$compiledComponents = $this->compileComponents($query);
-
-		$credentials = $this->compileCredentials();
-		$wheres      = isset($compiledComponents['wheres']) ? $compiledComponents['wheres'] : [];
-
-		$compiledComponents['wheres'] = array_merge($credentials, $wheres);
-
-		return $compiledComponents;
-	}
 
 	/**
 	 * Compile credentials, returns the same result as the
@@ -49,37 +32,49 @@ class OpenproviderGrammar extends Grammar {
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * {@inheritDoc}
 	 */
-	protected function compileWheres(Builder $query)
+	protected function compileBody(Builder $query)
 	{
-		$path    = $query->from['path'];
-		$request = array();
 
-		if ( ! is_null($query->wheres) ) {
-			foreach ($query->wheres as $where) {
-				if ($this->hasReplacedWhere($where)) continue;
+		$credentials = $this->compileCredentials();
+		$path        = $query->from['path'];
+		$body        = parent::compileBody($query);
 
-				if ( ! is_array($where['value']) ) {
-					$request[$where['column']] = $where['value'];
+		$compiled = array_merge($credentials, [$path => $body]);
+
+
+		// Build the XML
+		$rootElement = new SimpleXMLElement('<?xml version=\'1.0\'?><openXML></openXML>');
+
+		$this->array2xml($compiled, $rootElement);
+
+		return $rootElement->asXML();
+	}
+
+	/**
+	 * [array2xml description]
+	 * @param  [type] $data     [description]
+	 * @param  [type] &$element [description]
+	 * @return [type]           [description]
+	 */
+	protected function array2xml($data, &$element) {
+
+		foreach($data as $key => $value) {
+			if ( is_array($value) ) {
+
+				if ( ! is_numeric($key) ) {
+					$subnode = $element->addChild("$key");
+					$this->array2xml($value, $subnode);
 				} else {
-
-					if ( ! (array_keys($where['value']) !== range(0, count($where['value']) - 1) )) {
-						$request[$where['column']] = ['array' => $where['value']];
-					} else {
-						$request[$where['column']] = $where['value'];
-					}
-
+					$subnode = $element->addChild('item');
+					$this->array2xml($value, $subnode);
 				}
 			}
-
-			if (count($request) > 0) {
-				return [$path => $request];
+			else {
+				$element->addChild("$key",htmlspecialchars("$value"));
 			}
-
 		}
-
-		return [$path => []];
 	}
 
 	/**
