@@ -2,27 +2,23 @@
 
 use Nielstholenaar\OpenproviderClient\Model\BaseModel;
 
-class Customer extends BaseModel {
+class SpamExperts extends BaseModel {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected $connection = 'openprovider';
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected $primaryKey = 'handle';
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected $defaults = [
 		'index'	  => ['method' => 'POST'],
-		'show'    => ['method' => 'POST'],
 		'store'   => ['method' => 'POST'],
 		'update'  => ['method' => 'POST'],
 		'destroy' => ['method' => 'POST'],
+		'generateSeLoginUrl' => ['method' => 'POST'],
 	];
 
 	/**
@@ -30,10 +26,10 @@ class Customer extends BaseModel {
 	 */
 	protected $paths = [
 		'index'   => ['path'  => 'searchCustomerRequest'],
-		'show'    => ['path'  => 'retrieveCustomerRequest'],
-		'store'   => ['path'  => 'createCustomerRequest'],
-		'update'  => ['path'  => 'modifyCustomerRequest'],
-		'destroy' => ['path'  => 'deleteCustomerRequest'],
+		'store'   => ['path'  => 'createDomainSeRequest'],
+		'update'  => ['path'  => 'modifyDomainSeRequest'],
+		'destroy' => ['path'  => 'deleteDomainSeRequest'],
+		'generateSeLoginUrl' => ['path'  => 'generateSeLoginUrlRequest'],
 	];
 
 }

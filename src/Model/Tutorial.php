@@ -2,7 +2,7 @@
 
 use Nielstholenaar\OpenproviderClient\Model\BaseModel;
 
-class Extension extends BaseModel {
+class Tutorial extends BaseModel {
 
 	/**
 	 * {@inheritDoc}
@@ -12,22 +12,19 @@ class Extension extends BaseModel {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected $primaryKey = 'name';
-
-	/**
-	 * {@inheritDoc}
-	 */
 	protected $defaults = [
-		'index'	 => ['method' => 'POST'],
-		'show'	 => ['method' => 'POST'],
+		'index'	=> ['method' => 'POST'],
+		'show'  => ['method' => 'POST'],
+		'store' => ['method' => 'POST'],
 	];
 
 	/**
 	 * {@inheritDoc}
 	 */
 	protected $paths = [
-		'index'  => ['path' => 'searchExtensionRequest'],
-		'show'   => ['path' => 'retrieveExtensionRequest'],
+		'index' => ['path'  => 'searchTutorialRequest'],
+		'show'  => ['path'  => 'retrieveTutorialRequest'],
+		'store' => ['path'  => 'orderTutorialRequest'],
 	];
 
 }

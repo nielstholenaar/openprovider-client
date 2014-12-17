@@ -3,6 +3,7 @@
 use Kevindierkx\Elicit\Query\Processors\Processor;
 use Kevindierkx\Elicit\Query\Builder;
 use SimpleXMLElement;
+use Exception;
 
 class OpenproviderProcessor extends Processor {
 
@@ -11,21 +12,35 @@ class OpenproviderProcessor extends Processor {
 	 */
 	public function processRequest(Builder $query, $results)
 	{
-
 		// Remove all SimpleXML traces
-		$results = json_decode( json_encode( (array) $results ) );
+		$results = json_decode( json_encode( $results ) );
 
-		if ( isset($results->reply->data) ) {
-			$results = $results->reply->data;
+		if ( isset($results->reply) ) {
+			$results = $results->reply;
 		}
 
-		if ( isset($results->results) ) {
-			$results = $results->results;
-		}
+	 	/**
+	 	 * Parse Errors
+	 	 */
+	 	if (
+	 		 isset($results->code) &&
+	 		 $results->code != 0
+	 	) {
+	 		throw new Exception($results->desc, $results->code);
+	 	}
 
-		if ( isset($results->nameServers) ) {
-			$results = $results->nameServers;
-		}
+	 	if ( isset($results->data) ) {
+	 		$results = $results->data;
+	 	}
+
+	 	if ( isset($results->results) ) {
+	 		$results = $results->results;
+	 	}
+
+	 	if ( isset($results->nameServers) ) {
+	 		$results = $results->nameServers;
+	 	}
+
 
 		// Openprovider stores there collections
 		// within an 'array' element. Each item within this
@@ -42,8 +57,7 @@ class OpenproviderProcessor extends Processor {
 			}
 		}
 
-		if (! is_array($results)) { return [$results]; }
-		return $results;
+		return [(array) $results];
 	}
 
 }
