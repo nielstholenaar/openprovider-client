@@ -16,8 +16,8 @@ class OpenproviderClientServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->registerOpenproviderConnection();
-		$this->registerOpenproviderConnector();
+		$this->bindOpenproviderConnection();
+		$this->bindOpenproviderConnector();
 
 		$this->package('pcextreme/openprovider-client', 'openprovider-client', __DIR__ . '/..');
 	}
@@ -25,7 +25,7 @@ class OpenproviderClientServiceProvider extends ServiceProvider {
 	/**
 	 * Bind the Openprovider connector
 	 */
-	public function registerOpenproviderConnector()
+	public function bindOpenproviderConnector()
 	{
 		$this->app->bind(
 			'elicit.connector.openprovider',
@@ -36,7 +36,7 @@ class OpenproviderClientServiceProvider extends ServiceProvider {
 	/**
 	 * Bind the Openprovider connection
 	 */
-	public function registerOpenproviderConnection()
+	public function bindOpenproviderConnection()
 	{
 		$this->app->bind(
 			'elicit.connection.openprovider',
