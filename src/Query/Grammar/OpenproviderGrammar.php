@@ -2,10 +2,7 @@
 
 use Kevindierkx\Elicit\Query\Grammars\Grammar;
 use Kevindierkx\Elicit\Query\Builder;
-
-use DOMDocument;
 use SimpleXMLElement;
-use DomElement;
 
 class OpenproviderGrammar extends Grammar {
 
@@ -36,44 +33,48 @@ class OpenproviderGrammar extends Grammar {
 	 */
 	protected function compileBody(Builder $query)
 	{
-
 		$credentials = $this->compileCredentials();
 		$path        = $query->from['path'];
 		$body        = parent::compileBody($query);
 
-		$compiled = array_merge($credentials, [$path => $body]);
+		$compiledComponents = array_merge(
+			$credentials,
+			[
+				$path => $body
+			]
+		);
 
-
-		// Build the XML
 		$rootElement = new SimpleXMLElement('<?xml version=\'1.0\'?><openXML></openXML>');
-
-		$this->array2xml($compiled, $rootElement);
+		$this->array2xml($compiledComponents, $rootElement);
 
 		return $rootElement->asXML();
 	}
 
 	/**
-	 * [array2xml description]
-	 * @param  [type] $data     [description]
-	 * @param  [type] &$element [description]
-	 * @return [type]           [description]
+	 * This small helper function will convert
+	 * the PHP array to an valid XML response
+	 *
+	 * @param  array            $data
+	 * @param  SimpleXMLElement &$element
 	 */
-	protected function array2xml($data, &$element) {
-
-		foreach($data as $key => $value) {
-			if ( is_array($value) ) {
-
-				if ( ! is_numeric($key) ) {
-					$subnode = $element->addChild("$key");
-					$this->array2xml($value, $subnode);
-				} else {
-					$subnode = $element->addChild('item');
-					$this->array2xml($value, $subnode);
-				}
+	protected function array2xml(
+		array $data,
+		SimpleXMLElement &$element
+	) {
+		foreach ($data as $key => $value) {
+			if ( ! is_array($value) ) {
+				$element->addChild($key, $value);
+				continue;
 			}
-			else {
-				$element->addChild("$key",htmlspecialchars("$value"));
+
+			if ( ! is_numeric($key) ) {
+				$subnode = $element->addChild($key);
+				$this->array2xml($value, $subnode);
+				continue;
 			}
+
+			$subnode = $element->addChild('item');
+			$this->array2xml($value, $subnode);
 		}
 	}
 
