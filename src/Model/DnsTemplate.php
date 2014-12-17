@@ -1,8 +1,8 @@
 <?php namespace Nielstholenaar\OpenproviderClient\Model;
 
-use Kevindierkx\Elicit\Elicit\Model;
+use Nielstholenaar\OpenproviderClient\Model\BaseModel;
 
-class DnsTemplate extends Model {
+class DnsTemplate extends BaseModel {
 
 	/**
 	 * {@inheritDoc}

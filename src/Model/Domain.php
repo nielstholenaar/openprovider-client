@@ -1,8 +1,8 @@
 <?php namespace Nielstholenaar\OpenproviderClient\Model;
 
-use Kevindierkx\Elicit\Elicit\Model;
+use Nielstholenaar\OpenproviderClient\Model\BaseModel;
 
-class Domain extends Model {
+class Domain extends BaseModel {
 
 	/**
 	 * {@inheritDoc}
@@ -43,7 +43,7 @@ class Domain extends Model {
 		'transfer' => ['path' => 'transferDomainRequest'],
 		'restore'  => ['path' => 'restoreDomainRequest'],
 		'approveTransfer' => ['path' => 'approveTransferDomainRequest'],
-		'requestAuthCode' => ['path' => 'requestAutoCodeDomainRequest'],
+		'requestAuthCode' => ['path' => 'requestAuthCodeDomainRequest'],
 		'resetAuthCode'   => ['path' =>	'resetAuthCodeDomainRequest'],
 	];
 
