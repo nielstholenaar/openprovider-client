@@ -57,10 +57,8 @@ class OpenproviderGrammar extends Grammar {
 	 * @param  array            $data
 	 * @param  SimpleXMLElement &$element
 	 */
-	protected function array2xml(
-		array $data,
-		SimpleXMLElement &$element
-	) {
+	protected function array2xml( array $data, SimpleXMLElement &$element ) 
+	{
 		foreach ($data as $key => $value) {
 			if ( ! is_array($value) ) {
 				$element->addChild($key, $value);

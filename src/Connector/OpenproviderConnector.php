@@ -29,12 +29,16 @@ class OpenproviderConnector extends Connector implements ConnectorInterface {
 	 */
 	protected function parseResponse(Response $response)
 	{
-		try {
-			return parent::parseResponse($response);
+		// The Openprovider API may sent an wrong content-type header
+		// We need to handle that strange behaviour by overwriting the 
+		// default behaviour of this method
+
+		try { 
+			parent::parseResponse($response); 
 		} catch (RuntimeException $ex) {
 			$contentType = explode(';', $response->getHeader('content-type'))[0];
+			
 			switch ($contentType) {
-
 				case 'text/html':
 					return $response->xml();
 			}

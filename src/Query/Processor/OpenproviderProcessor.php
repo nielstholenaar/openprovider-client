@@ -1,63 +1,95 @@
 <?php namespace Nielstholenaar\OpenproviderClient\Query\Processor;
 
-use Kevindierkx\Elicit\Query\Processors\Processor;
 use Kevindierkx\Elicit\Query\Builder;
-use SimpleXMLElement;
-use Exception;
+use Kevindierkx\Elicit\Query\Processors\Processor;
 
-class OpenproviderProcessor extends Processor {
+class OpenProviderProcessor extends Processor {
 
 	/**
-	 * {@inheritdoc}
+	 * Process the results of an API request.
+	 *
+	 * @param  \Kevindierkx\Elicit\Query\Builder  $query
+	 * @param  array  $results
+	 * @return array
 	 */
-	public function processRequest(Builder $query, $results)
+	protected function processRequest(Builder $query, $results)
 	{
-		// Remove all SimpleXML traces
-		$results = json_decode( json_encode( $results ) );
+		// Here we remove any SimpleXmlElement traces, by casting the object to array
+		// and json_encode / decode the result
+		$results = json_decode(json_encode((array) $results));
 
-		if ( isset($results->reply) ) {
-			$results = $results->reply;
-		}
+		if ( isset($results->reply) ) $results = $results->reply;
 
-	 	/**
-	 	 * Parse Errors
-	 	 */
-	 	if (
-	 		 isset($results->code) &&
-	 		 $results->code != 0
-	 	) {
-	 		throw new Exception($results->desc, $results->code);
-	 	}
+		if ( isset($results->code) && $results->code != 0 ) { return null; }
 
-	 	if ( isset($results->data) ) {
-	 		$results = $results->data;
-	 	}
+		// Openprovider wraps his API results in several
+		// Results provided by the Openprovider API may contains several unneeded elements,
+		// which makes the dataset more complex. The following if statements will
+		// try to remove the not required elements
+		if (isset($results->data)) $results = $results->data;
+		if (isset($results->total) && $results->total == 0) return [];
+		if (isset($results->results)) $results = $results->results;
+		if (isset($results->array)) $results = $results->array;
+		if (isset($results->item)) $results = (array) $results->item;
 
-	 	if ( isset($results->results) ) {
-	 		$results = $results->results;
-	 	}
+		// Here we validate the results being returned to be associative.
+		// When they are not we wrap them in an array making it easier for
+		// elicit to them parse as a model.
+		if (array_keys($results) !== range(0, count($results) - 1)) return [$results];
 
-	 	if ( isset($results->nameServers) ) {
-	 		$results = $results->nameServers;
-	 	}
+		// Here we return the results directly, assuming the items in
+		// the array are a collection.
+		return $results;
+	}
 
+	/**
+	 * Process the results of both an "Index" and "Show" API request
+	 *
+	 * @param  \Kevindierkx\Elicit\Query\Builder  $query
+	 * @param  array  $results
+	 * @return array
+	 */
+	public function processShowRequest(Builder $query, $results)
+	{
+		return $this->processRequest($query, $results);
+	}
 
-		// Openprovider stores there collections
-		// within an 'array' element. Each item within this
-		// element is stored within the 'item' element
-		// When we detect one or more collection we simplify them.
-		if (
-			 isset($results->array) &&
-			 isset($results->array->item)
-		) {
-			if ( count($results->array->item) <= 1 ) {
-				$results = [$results->array->item];
-			} else {
-				$results = $results->array->item;
-			}
-		}
+	/**
+	 * Process the results of an "Create" API request
+	 *
+	 * @param  \Kevindierkx\Elicit\Query\Builder  $query
+	 * @param  array  $results
+	 * @return array
+	 */
+	public function processCreateRequest(Builder $query, $results)
+	{
+		return $this->processRequest($query, $results);
+	}
 
-		return [(array) $results];
+	/**
+	 * Process the result of an "Update" API request
+	 *
+	 * @param  \Kevindierkx\Elicit\Query\Builder  $query
+	 * @param  array  $results
+	 * @return array
+	 */
+	public function processUpdateRequest(Builder $query, $results)
+	{
+		return $this->processRequest($query, $results);
+	}
+
+	/**
+	 * Process the result of an "Delete" API request
+	 *
+	 * @param  \Kevindierkx\Elicit\Query\Builder  $query
+	 * @param  array  $results
+	 * @return boolean
+	 */
+	public function processDeleteRequest(Builder $query, $results)
+	{
+		// We assume that there isn't any response on
+		// a successful delete operation (204 No Content)
+		return ( count($results) != 0 );
 	}
 
 }
