@@ -20,7 +20,7 @@ class OpenProviderProcessor extends Processor {
 
 		if ( isset($results->reply) ) $results = $results->reply;
 
-		if ( isset($results->code) && $results->code != 0 ) { return null; }
+		if ( isset($results->code) && $results->code != 0 ) { return []; }
 
 		// Openprovider wraps his API results in several
 		// Results provided by the Openprovider API may contains several unneeded elements,
